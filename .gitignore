@@ -1,0 +1,22 @@
+# 权重/大文件
+*.pth
+*.pt
+*.ckpt
+*.bin
+*.safetensors
+
+# 训练输出/缓存
+runs/
+results/
+logs/
+wandb/
+
+# 数据集
+Data/
+data/
+datasets/
+
+# 临时
+__pycache__/
+*.pyc
+.DS_Store

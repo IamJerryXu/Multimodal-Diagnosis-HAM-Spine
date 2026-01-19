@@ -1,0 +1,232 @@
+experiment:
+  github_version: v1.0
+  save_dir: "/data/QLI/Assignment_for_dl/runs/ConNexT"
+  experiment_name: "ConNexT_Spine"
+  description: "spine"
+
+data:
+    # data_root: '/mnt/sda1/AAAI/123_batch/first_second_third_batch_without_5'
+
+    # train_label_path: '/mnt/sda1/AAAI/123_batch/first_second_third_batch_without_5/label/train.csv'
+    # test_label_path: '/mnt/sda1/AAAI/123_batch/first_second_third_batch_without_5/label/test.csv'
+
+    # train_img_path: '/mnt/sda1/AAAI/123_batch/first_second_third_batch_without_5/train/images'
+    # train_text_desc_path: '/mnt/sda1/AAAI/all_responses_1232.json'
+    # test_img_path: '/mnt/sda1/AAAI/123_batch/first_second_third_batch_without_5/test/images'
+    # test_text_desc_path: '/mnt/sda1/AAAI/all_responses_1232.json'
+    # train_hidden_path: '/mnt/sda1/AAAI/all_hidden_states_1232.json' 
+    # test_hidden_path: '/mnt/sda1/AAAI/all_hidden_states_1232.json' 
+
+    data_root: '/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset'
+
+    train_label_path: '/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/train_1_clean.csv'
+    test_label_path: '/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/test_1_clean.csv'
+
+    train_img_path: '/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/train/images'
+    train_text_desc_path: '/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/response/train/responses.json'
+    train_hidden_path: null
+
+    test_img_path: '/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/test/images'
+    test_text_desc_path: '/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/response/test/responses.json'
+    test_hidden_path: null
+
+
+
+train:
+  epoch: 200
+  log_every_n_steps: 10
+  check_val_every_n_epoch: 1
+  save_topk: 3
+  learning_rate: 0.00003536
+  batch_size: 32
+  num_workers: 0
+  warmup_epochs: 0
+  precision: "16-mixed"
+  #class_weights: [8.3093, 17.7833, 19.3300, 22.2292, 1.6908, 0.1947] #下面是对数平滑之后的结果
+  #class_weights: [2.2310, 2.9330, 3.0121, 3.1454, 0.9898, 0.1779]
+
+
+
+model:
+  num_classes: 6
+  # 图像编码器配置（用于统一工厂 create_image_encoder）
+  # 支持名称（name）: 'mambavision', 'convnext', 'resnet'（不区分大小写）
+  # variant: 各编码器的变体名称（例如 Mamba: 'L2'，ConvNeXt: 'base'，ResNet: 'resnet50'）
+  # output_dim: 编码器输出特征维度（将传给投影层）
+  # pretrained: 是否加载预训练权重（true/false）
+  # model_paths: 可选的模型路径字典，用于指定本地 checkpoint
+  image_encoder:
+    name: convnext
+    variant: large
+    output_dim: 1536
+    pretrained: true
+    model_paths: {}
+  
+  moe: 
+    num_experts: 4
+    k: 2
+  KAN:
+    layers_hidden: [1536,512,128,32,9]
+    grid_size: 5
+    spline_order: 3
+    scale_noise: 0.1
+    scale_base: 1.0
+    scale_spline: 1.0
+
+  baseline_MambaVision_KAN_block:
+    with_text: True
+
+  baseLineMambaVision_KAN_mamba:
+    with_text: True
+
+
+  baseline_MambaVision_HAMKAN_block:
+    with_text: False
+    
+  baseline_MambaVision_KAN_MoE:
+    with_text: True
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline:
+    mamba_fusion: 
+      num_layer: 1
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_resnet50:
+    with_text: False
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_MambaVision_CRM:
+    with_text: False
+    lambda_c: 0.6   # 通道权重系数
+    lambda_s: 0.4   # 空间交互系数
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_MambaVision:
+    with_text: False
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_MambaVision_KAN:
+    with_text: False
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_MambaVision_KAN_2D:
+    with_text: False
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_MambaVision_KANbefair_2D:
+    with_text: False
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_MambaVision_text:
+    with_text: True
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_MambaVision_text_without_mamba_fusion :
+    with_text: True
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_MambaIR:
+    with_text: False
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_VisionMamba:
+    with_text: False
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_EfficientMamba:
+    with_text: False
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+  baseline_SNS:
+    with_text: False
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]
+      outdims: [512, 256]
+      indims_fusion: [256, 512]
+      outdims_fusion: [512, 768]
+      dim_model: 128
+
+
+  baseline_convnext:
+    with_text: False
+    mamba_fusion: 
+      num_layer: 2
+      indims: [768, 512]      

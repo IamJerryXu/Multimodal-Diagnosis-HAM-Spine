@@ -1,0 +1,107 @@
+# config.yml
+# 配置文件，用于管理超参数和路径
+
+# --- 数据路径配置 (Data Paths) ---
+data:
+  # 训练集配置
+  train_image_dir: "/data/QLI/Assignment_for_dl/Data/data_for_dl/HAM10000_dataset/train/"
+  train_json_path: "/data/QLI/Assignment_for_dl/Data/data_for_dl/HAM10000_dataset/response/train/responses.json"
+  train_label_csv: "/data/QLI/Assignment_for_dl/Data/data_for_dl/HAM10000_dataset/train_label.csv"
+  metadata_csv: "/data/QLI/Assignment_for_dl/Data/data_for_dl/HAM10000_dataset/HAM10000_metadata.csv"
+  
+  # 验证集配置
+  val_image_dir: "/data/QLI/Assignment_for_dl/Data/data_for_dl/HAM10000_dataset/test/"
+  val_json_path: "/data/QLI/Assignment_for_dl/Data/data_for_dl/HAM10000_dataset/response/test/responses.json"
+  val_label_csv: "/data/QLI/Assignment_for_dl/Data/data_for_dl/HAM10000_dataset/test_label.csv"
+
+  # 测试集配置 (用于最终评估)
+  test_image_dir: "/data/QLI/Assignment_for_dl/Data/data_for_dl/HAM10000_dataset/test/"
+  test_json_path: "/data/QLI/Assignment_for_dl/Data/data_for_dl/HAM10000_dataset/response/test/responses.json"
+  test_label_csv: "/data/QLI/Assignment_for_dl/Data/data_for_dl/HAM10000_dataset/test_label.csv"
+
+# --- 模型超参数配置 (Model Hyperparameters) ---
+model:
+  fusion_type: "basic"
+
+  # 分类任务的类别数
+  num_classes: 7
+
+  # 图像编码器 (Image Encoder)
+  image_encoder:
+    # 主干网络，可选: "resnet18" 或 "resnet34"
+    backbone: "resnet18"
+    # ResNet输出的特征维度 (resnet18/34/50 都是 512)
+    feature_dim: 512
+    # 是否使用在ImageNet上预训练的权重
+    pretrained: true
+    # 是否在训练中冻结图像编码器的参数
+    freeze: false
+    # weights_path: "/path/to/your/resnet18_imagenet.pth"
+    weights_path: "/home/medteam/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth"
+
+  # 文本编码器 (Text Encoder)
+  text_encoder:
+    # 使用的BERT模型名称 (来自HuggingFace)
+    # model_name: "bert-base-uncased"
+    model_name: "/home/medteam/.cache/huggingface/hub/models--bert-base-uncased/snapshots/86b5e0934494bd15c9632b12f734a8a67f723594"
+    # BERT-base输出的特征维度
+    feature_dim: 768
+    # 是否在训练中冻结文本编码器的参数
+    freeze: false
+
+  # 分类头类型 (Classifier Type)
+  # 可选: "mlp", "kan", "residual", "attention_pooling"
+  classifier_type: "mlp"
+
+  # MLP分类头 (MLP Head)
+  mlp_head:
+    # 隐藏层维度
+    hidden_dim: 256
+    # Dropout比例
+    dropout: 0.3
+
+  # Tabular 分支 (可选)
+  tabular:
+    enabled: true
+    input_dim: 0
+    hidden_dim: 128
+    dropout: 0.1
+    fields: ["age", "sex", "localization"]
+    normalize: "zscore"
+
+# --- 推理策略 (Inference) ---
+inference:
+  tta:
+    enabled: true
+    transforms: ["hflip", "vflip", "rot90"]
+
+# --- 训练参数配置 (Training Parameters) ---
+training:
+  # 设备: "cuda", "cpu"
+  device: "cuda"
+  gpu_ids: [5]
+  # 批处理大小
+  batch_size: 64
+  # 学习率
+  learning_rate: 0.0002
+  # 训练轮数
+  num_epochs: 60
+  # 优化器: "Adam", "AdamW", "SGD"
+  optimizer: "AdamW"
+  # 学习率调度器: "cosine", "warmup_cosine" 或 null
+  lr_scheduler: "warmup_cosine"
+  # warmup 阶段的 epoch 数（仅 warmup_cosine 生效）
+  warmup_epochs: 3
+  
+# --- 文本处理配置 (Tokenizer Parameters) ---
+tokenizer:
+  # 文本序列的最大长度
+  max_length: 128
+  
+# --- 输出配置 (Output Paths) ---
+output:
+    # 实验运行的根目录（相对于 baseline-main/）
+  log_dir: "/data/QLI/Assignment_for_dl/runs/"
+  # 为本次运行指定的名称 (会和时间戳组合)
+  run_name: "ham_tta_attn_basic_mlp"
+  

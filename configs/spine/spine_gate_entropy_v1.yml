@@ -1,0 +1,80 @@
+# config.yml
+# Dual-Expert Gate (entropy-driven) for spine
+
+data:
+  train_image_dir: "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/train/images"
+  extra_image_dirs:
+    - "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/test/images"
+    - "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_extra_230/images"
+  train_json_path: "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/response/train/responses.json"
+  train_label_csv: "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/train_1_plus230.csv"
+  metadata_csv: ""
+
+  val_image_dir: "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/test/images"
+  val_json_path: "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/response/test/responses.json"
+  val_label_csv: "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/test_1_clean.csv"
+
+  test_image_dir: "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/test/images"
+  test_json_path: "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/response/test/responses.json"
+  test_label_csv: "/data/QLI/Assignment_for_dl/Data/data_for_dl/Spine_dataset/test_1_clean.csv"
+
+model:
+  fusion_type: "multiscale"
+  ablation_mode: null
+
+  gate:
+    enabled: true
+    hidden_dim: 128
+    use_entropy: true
+    local_mode: "image_only"
+    context_mode: "full"
+
+  num_classes: 6
+
+  image_encoder:
+    backbone: "resnet18"
+    feature_dim: 512
+    pretrained: true
+    freeze: false
+    weights_path: "/home/medteam/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth"
+
+  text_encoder:
+    model_name: "/home/medteam/.cache/huggingface/hub/models--bert-base-uncased/snapshots/86b5e0934494bd15c9632b12f734a8a67f723594"
+    feature_dim: 768
+    freeze: false
+
+  classifier_type: "kan"
+
+  mlp_head:
+    hidden_dim: 256
+    dropout: 0.3
+
+  tabular:
+    enabled: false
+    input_dim: 0
+    hidden_dim: 128
+    dropout: 0.1
+    fields: ["age", "sex", "localization"]
+    normalize: "zscore"
+
+training:
+  device: "cuda"
+  gpu_ids: [0]
+  batch_size: 64
+  learning_rate: 0.0002
+  num_epochs: 60
+  optimizer: "AdamW"
+  lr_scheduler: "warmup_cosine"
+  warmup_epochs: 3
+  sampler: "weighted"
+  class_weight: null
+  loss:
+    type: "ce"
+    label_smoothing: 0.02
+
+tokenizer:
+  max_length: 128
+
+output:
+  log_dir: "/data/QLI/Assignment_for_dl/runs/"
+  run_name: "Spine_gate_entropy"
