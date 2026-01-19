@@ -32,7 +32,7 @@
 | --- | --- | --- | --- |
 | MIBF‑Net (ResNet50) | HAM | IBFA + MP‑Loss | 92.48 |
 | MIBF‑Net (ResNet50) | Spine | IBFA + MP‑Loss | 91.52 |
-| ConNeXT (ConvNeXt + MoE) | HAM | MoE 分类头 | 92.8 |
+| ConNeXT (ConvNeXt + MoE) | HAM | MoE 分类头 | 93.41 |
 
 ## 超参数敏感性（提高题1）
 
@@ -89,7 +89,7 @@
 | 分类头 | MoE 分类头（ConNeXT） | 91.08 | — |
 | 迁移表征 | MIBF‑Net（ResNet50 迁移） | 92.48 | — |
 | 迁移表征 | MIBF‑Net（ResNet50 迁移） | — | 91.52 |
-| 迁移表征 | ConNeXT（ConvNeXt + MoE） | 92.8 | — |
+| 迁移表征 | ConNeXT（ConvNeXt + MoE） | 93.41 | — |
 | 目标函数 | 模态分歧监督（对称 KL） | 88.92 | 87.33 |
 | 目标函数 | Focal / Weighted Sampler | 87.76 | 86.54 |
 | 拟人化 | Dual‑Expert Gate | 89.10 | 84.69 |
